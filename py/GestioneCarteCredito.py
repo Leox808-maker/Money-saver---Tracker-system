@@ -59,3 +59,98 @@ class GestioneCarteCredito:
         self.saldo_carte_btn = tk.Button(self.carte_frame, text="Visualizza Saldo Carte",
                                          command=self.visualizza_saldo_carte)
         self.saldo_carte_btn.pack(pady=10)
+
+        def aggiungi_carta(self):
+            numero_carta = self.numero_carta_entry.get()
+            nome_carta = self.nome_carta_entry.get()
+            data_scadenza = self.data_scadenza_entry.get()
+            cvc = self.cvc_entry.get()
+            saldo = self.saldo_entry.get()
+            if numero_carta and nome_carta and data_scadenza and cvc and saldo:
+                carta = {
+                    "numero": numero_carta,
+                    "nome": nome_carta,
+                    "scadenza": data_scadenza,
+                    "cvc": cvc,
+                    "saldo": float(saldo),
+                    "transazioni": []
+                }
+                self.carte_data.append(carta)
+                self.carte_listbox.insert(tk.END, f"{nome_carta} - {numero_carta[-4:]}")
+                self.numero_carta_entry.delete(0, tk.END)
+                self.nome_carta_entry.delete(0, tk.END)
+                self.data_scadenza_entry.delete(0, tk.END)
+                self.cvc_entry.delete(0, tk.END)
+                self.saldo_entry.delete(0, tk.END)
+
+        def rimuovi_carta(self):
+            selezione = self.carte_listbox.curselection()
+            if selezione:
+                indice = selezione[0]
+                self.carte_listbox.delete(indice)
+                del self.carte_data[indice]
+
+        def visualizza_transazioni(self):
+            selezione = self.carte_listbox.curselection()
+            if selezione:
+                indice = selezione[0]
+                carta = self.carte_data[indice]
+                transazioni_finestra = tk.Toplevel(self.root)
+                transazioni_finestra.title(f"Transazioni per {carta['nome']}")
+
+                transazioni_listbox = tk.Listbox(transazioni_finestra)
+                transazioni_listbox.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+                for transazione in carta["transazioni"]:
+                    transazioni_listbox.insert(tk.END,
+                                               f"{transazione['data']} - {transazione['descrizione']} - {transazione['importo']} €")
+
+                chiudi_btn = tk.Button(transazioni_finestra, text="Chiudi", command=transazioni_finestra.destroy)
+                chiudi_btn.pack(pady=10)
+
+        def aggiungi_transazione(self):
+            selezione = self.carte_listbox.curselection()
+            if selezione:
+                indice = selezione[0]
+                carta = self.carte_data[indice]
+                transazione_finestra = tk.Toplevel(self.root)
+                transazione_finestra.title(f"Aggiungi Transazione a {carta['nome']}")
+
+                descrizione_label = tk.Label(transazione_finestra, text="Descrizione:")
+                descrizione_label.pack(pady=5)
+                descrizione_entry = tk.Entry(transazione_finestra)
+                descrizione_entry.pack(pady=5)
+
+                importo_label = tk.Label(transazione_finestra, text="Importo:")
+                importo_label.pack(pady=5)
+                importo_entry = tk.Entry(transazione_finestra)
+                importo_entry.pack(pady=5)
+
+                def salva_transazione():
+                    descrizione = descrizione_entry.get()
+                    importo = importo_entry.get()
+                    if descrizione and importo:
+                        transazione = {
+                            "descrizione": descrizione,
+                            "importo": float(importo),
+                            "data": datetime.date.today().strftime("%Y-%m-%d")
+                        }
+                        carta["transazioni"].append(transazione)
+                        carta["saldo"] -= float(importo)
+                        transazione_finestra.destroy()
+
+                salva_btn = tk.Button(transazione_finestra, text="Salva", command=salva_transazione)
+                salva_btn.pack(pady=10)
+
+        def visualizza_saldo_carte(self):
+            saldo_finestra = tk.Toplevel(self.root)
+            saldo_finestra.title("Saldo delle Carte")
+
+            saldo_listbox = tk.Listbox(saldo_finestra)
+            saldo_listbox.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+            for carta in self.carte_data:
+                saldo_listbox.insert(tk.END, f"{carta['nome']} - Saldo: {carta['saldo']} €")
+
+            chiudi_btn = tk.Button(saldo_finestra, text="Chiudi", command=saldo_finestra.destroy)
+            chiudi_btn.pack(pady=10)
