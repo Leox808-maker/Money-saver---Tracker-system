@@ -96,3 +96,116 @@ class WishlistAndGoalsManager(tk.Frame):
         tk.Label(popup, text="Costo Stimato (€):").grid(row=1, column=0, padx=10, pady=10)
         cost_entry = tk.Entry(popup)
         cost_entry.grid(row=1, column=1, padx=10, pady=10)
+
+        if item_values:
+            cost_entry.insert(0, item_values[1])
+        tk.Label(popup, text="Priorità:").grid(row=2, column=0, padx=10, pady=10)
+        priority_entry = tk.Entry(popup)
+        priority_entry.grid(row=2, column=1, padx=10, pady=10)
+        if item_values:
+            priority_entry.insert(0, item_values[2])
+
+        tk.Button(popup, text=action, command=lambda: self.process_wishlist_entry(popup, callback, name_entry.get(), cost_entry.get(), priority_entry.get())).grid(row=3, column=0, columnspan=2, pady=20)
+
+
+    def process_wishlist_entry(self, popup, callback, name, cost, priority):
+        if not name or not cost or not priority:
+            messagebox.showwarning("Errore", "Compila tutti i campi.")
+        else:
+            try:
+                cost = float(cost)
+                callback(name, cost, priority)
+                popup.destroy()
+            except ValueError:
+                messagebox.showerror("Errore", "Il costo stimato deve essere un numero valido.")
+
+
+
+
+    def add_wishlist_to_list(self, name, cost, priority):
+        self.wishlist.append((name, cost, priority))
+        self.update_wishlist_tree()
+
+
+
+
+    def update_wishlist_item(self, item):
+        name = self.popup_name_entry.get()
+        cost = self.popup_cost_entry.get()
+        priority = self.popup_priority_entry.get()
+        self.wishlist_tree.item(item, values=(name, cost, priority))
+        # popup.destroy()
+
+
+
+
+    def update_wishlist_tree(self):
+        for item in self.wishlist_tree.get_children():
+            self.wishlist_tree.delete(item)
+        for wishlist_item in self.wishlist:
+            self.wishlist_tree.insert("", tk.END, values=wishlist_item)
+
+
+
+    def add_goal(self):
+        self.create_goal_popup("Aggiungi", self.add_goal_to_list)
+
+
+    def edit_goal(self):
+        selected_item = self.goals_tree.selection()
+        if selected_item:
+            item_values = self.goals_tree.item(selected_item)["values"]
+            self.create_goal_popup("Modifica", lambda: self.update_goal_item(selected_item), item_values)
+        else:
+            messagebox.showwarning("Errore", "Seleziona un obiettivo da modificare.")
+
+
+
+    def delete_goal(self):
+        selected_item = self.goals_tree.selection()
+        if selected_item:
+            self.goals_tree.delete(selected_item)
+            self.goals = [goal for goal in self.goals if self.goals_tree.index(goal) != self.goals_tree.index(selected_item)]
+            messagebox.showinfo("Obiettivo Eliminato", "L'obiettivo selezionato è stato eliminato.")
+        else:
+            messagebox.showwarning("Errore", "Seleziona un obiettivo da eliminare.")
+
+
+
+
+    def create_goal_popup(self, action, callback, goal_values=None):
+        popup = tk.Toplevel(self)
+        popup.title(f"{action} Obiettivo")
+
+        tk.Label(popup, text="Descrizione:").grid(row=0, column=0, padx=10, pady=10)
+        description_entry = tk.Entry(popup)
+        description_entry.grid(row=0, column=1, padx=10, pady=10)
+        if goal_values:
+            description_entry.insert(0, goal_values[0])
+
+        tk.Label(popup, text="Importo Target (€):").grid(row=1, column=0, padx=10, pady=10)
+        target_entry = tk.Entry(popup)
+        target_entry.grid(row=1, column=1, padx=10, pady=10)
+        if goal_values:
+            target_entry.insert(0, goal_values[1])
+
+        tk.Button(popup, text=action, command=lambda: self.process_goal_entry(popup, callback, description_entry.get(), target_entry.get())).grid(row=2, column=0, columnspan=2, pady=20)
+
+
+
+    def process_goal_entry(self, popup, callback, description, target):
+        if not description or not target:
+            messagebox.showwarning("Errore", "Compila tutti i campi.")
+        else:
+            try:
+                target = float(target)
+                callback(description, target)
+                popup.destroy()
+            except ValueError:
+                messagebox.showerror("Errore", "L'importo target deve essere un numero valido.")
+
+
+
+    def add_goal_to_list(self, description, target):
+        self.goals.append((description, target))
+        self.update_goals_tree()
