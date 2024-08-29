@@ -84,3 +84,65 @@ class SettingsMenu(tk.Frame):
 
         messagebox.showinfo("Impostazioni Ripristinate", "Le impostazioni sono state ripristinate ai valori di default")
         self.change_theme()
+
+        class MainMenu(tk.Frame):
+            def __init__(self, parent, app):
+                super().__init__(parent)
+                self.app = app
+                self.create_widgets()
+
+            def create_widgets(self):
+                tk.Label(self, text="Menu Principale", font=("Helvetica", 16)).pack(pady=20)
+
+                self.expense_button = tk.Button(self, text="Gestione Spese", font=("Helvetica", 14),
+                                                command=self.open_expense_tracker)
+                self.expense_button.pack(pady=10)
+
+                self.stats_button = tk.Button(self, text="Visualizza Statistiche", font=("Helvetica", 14),
+                                              command=self.open_statistics)
+                self.stats_button.pack(pady=10)
+
+                self.settings_button = tk.Button(self, text="Impostazioni", font=("Helvetica", 14),
+                                                 command=self.open_settings)
+                self.settings_button.pack(pady=10)
+
+                self.exit_button = tk.Button(self, text="Esci", font=("Helvetica", 14), command=self.app.root.quit)
+                self.exit_button.pack(pady=10)
+
+            def open_expense_tracker(self):
+                self.app.tabs.select(self.app.add_expense_frame)
+
+            def open_statistics(self):
+                self.app.tabs.select(self.app.statistics_frame)
+
+            def open_settings(self):
+                self.app.tabs.select(self.app.settings_frame)
+
+        class ExpenseTrackerApp(tk.Tk):
+            def __init__(self):
+                super().__init__()
+                self.title("Gestione Spese")
+                self.geometry("800x600")
+
+                self.tabs = ttk.Notebook(self)
+
+                self.main_menu = MainMenu(self.tabs, self)
+                self.settings_frame = SettingsMenu(self.tabs, self)
+
+                self.tabs.add(self.main_menu, text="Menu")
+                self.tabs.add(self.settings_frame, text="Impostazioni")
+
+                self.tabs.pack(expand=1, fill="both")
+
+            def set_light_theme(self):
+                pass
+
+            def set_dark_theme(self):
+                pass
+
+            def save_user_settings(self, settings):
+                pass
+
+        if __name__ == "__main__":
+            app = ExpenseTrackerApp()
+            app.mainloop()
