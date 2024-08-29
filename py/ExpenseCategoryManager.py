@@ -49,3 +49,74 @@ class ExpenseCategoryManager(tk.Frame):
             messagebox.showwarning("Errore", "Questa categoria esiste già!")
         else:
             messagebox.showwarning("Errore", "Il nome della categoria non può essere vuoto!")
+
+
+    def add_expense(self):
+        category_name = self.category_var.get()
+        try:
+            amount = float(self.amount_entry.get())
+            if category_name in self.categories:
+                self.categories[category_name] += amount
+                messagebox.showinfo("Spesa Aggiunta", f"Spesa di {amount} aggiunta alla categoria '{category_name}'.")
+            else:
+                messagebox.showwarning("Errore", "Seleziona una categoria valida.")
+        except ValueError:
+            messagebox.showwarning("Errore", "Inserisci un importo valido.")
+
+    def show_summary(self):
+        summary_window = tk.Toplevel(self)
+        summary_window.title("Riepilogo Spese per Categoria")
+        tk.Label(summary_window, text="Riepilogo Spese", font=("Helvetica", 16)).pack(pady=20)
+
+        for category, amount in self.categories.items():
+            tk.Label(summary_window, text=f"{category}: {amount:.2f} €", font=("Helvetica", 14)).pack(anchor="w", padx=20)
+
+        tk.Button(summary_window, text="Chiudi", command=summary_window.destroy).pack(pady=20)
+
+    def delete_category(self):
+        selected_category_index = self.category_listbox.curselection()
+        if selected_category_index:
+            category_name = self.category_listbox.get(selected_category_index)
+            del self.categories[category_name]
+            self.category_listbox.delete(selected_category_index)
+            self.update_category_combobox()
+            messagebox.showinfo("Categoria Eliminata", f"La categoria '{category_name}' è stata eliminata.")
+        else:
+            messagebox.showwarning("Errore", "Seleziona una categoria da eliminare.")
+
+    def update_category_combobox(self):
+        self.category_combobox["values"] = list(self.categories.keys())
+
+class ExpenseTrackerApp(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("Gestione Spese")
+        self.geometry("800x600")
+
+        self.tabs = ttk.Notebook(self)
+
+        self.main_menu = MainMenu(self.tabs, self)
+        self.settings_frame = SettingsMenu(self.tabs, self)
+        self.category_manager_frame = ExpenseCategoryManager(self.tabs, self)
+
+        self.tabs.add(self.main_menu, text="Menu")
+        self.tabs.add(self.settings_frame, text="Impostazioni")
+        self.tabs.add(self.category_manager_frame, text="Categorie Spese")
+
+        self.tabs.pack(expand=1, fill="both")
+
+    def set_light_theme(self):
+        pass
+
+    def set_dark_theme(self):
+        pass
+
+    def save_user_settings(self, settings):
+        pass
+
+
+if __name__ == "__main__":
+    app = ExpenseTrackerApp()
+    app.mainloop()
+
+
