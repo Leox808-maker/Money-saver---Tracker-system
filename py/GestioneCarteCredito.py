@@ -154,3 +154,86 @@ class GestioneCarteCredito:
 
             chiudi_btn = tk.Button(saldo_finestra, text="Chiudi", command=saldo_finestra.destroy)
             chiudi_btn.pack(pady=10)
+
+            def carica_carte_da_file(self, file_path):
+                with open(file_path, "r") as file:
+                    for linea in file:
+                        numero, nome, scadenza, cvc, saldo = linea.strip().split(",")
+                        carta = {
+                            "numero": numero,
+                            "nome": nome,
+                            "scadenza": scadenza,
+                            "cvc": cvc,
+                            "saldo": float(saldo),
+                            "transazioni": []
+                        }
+                        self.carte_data.append(carta)
+                        self.carte_listbox.insert(tk.END, f"{nome} - {numero[-4:]}")
+
+            def salva_carte_su_file(self, file_path):
+                with open(file_path, "w") as file:
+                    for carta in self.carte_data:
+                        file.write(
+                            f"{carta['numero']},{carta['nome']},{carta['scadenza']},{carta['cvc']},{carta['saldo']}\n")
+
+            def aggiorna_dati_carta(self, indice, numero, nome, scadenza, cvc, saldo):
+                carta = self.carte_data[indice]
+                carta["numero"] = numero
+                carta["nome"] = nome
+                carta["scadenza"] = scadenza
+                carta["cvc"] = cvc
+                carta["saldo"] = saldo
+                self.carte_listbox.delete(indice)
+                self.carte_listbox.insert(indice, f"{nome} - {numero[-4:]}")
+
+            def modifica_carta(self):
+                selezione = self.carte_listbox.curselection()
+                if selezione:
+                    indice = selezione[0]
+                    carta = self.carte_data[indice]
+
+                    modifica_finestra = tk.Toplevel(self.root)
+                    modifica_finestra.title(f"Modifica Carta {carta['nome']}")
+
+                    numero_carta_label = tk.Label(modifica_finestra, text="Numero Carta:")
+                    numero_carta_label.pack(pady=5)
+                    numero_carta_entry = tk.Entry(modifica_finestra)
+                    numero_carta_entry.insert(0, carta["numero"])
+                    numero_carta_entry.pack(pady=5)
+
+                    nome_carta_label = tk.Label(modifica_finestra, text="Nome:")
+                    nome_carta_label.pack(pady=5)
+                    nome_carta_entry = tk.Entry(modifica_finestra)
+                    nome_carta_entry.insert(0, carta["nome"])
+                    nome_carta_entry.pack(pady=5)
+
+                    data_scadenza_label = tk.Label(modifica_finestra, text="Data Scadenza:")
+                    data_scadenza_label.pack(pady=5)
+                    data_scadenza_entry = tk.Entry(modifica_finestra)
+                    data_scadenza_entry.insert(0, carta["scadenza"])
+                    data_scadenza_entry.pack(pady=5)
+
+                    cvc_label = tk.Label(modifica_finestra, text="CVC:")
+                    cvc_label.pack(pady=5)
+                    cvc_entry = tk.Entry(modifica_finestra)
+                    cvc_entry.insert(0, carta["cvc"])
+                    cvc_entry.pack(pady=5)
+
+                    saldo_label = tk.Label(modifica_finestra, text="Saldo:")
+                    saldo_label.pack(pady=5)
+                    saldo_entry = tk.Entry(modifica_finestra)
+                    saldo_entry.insert(0, carta["saldo"])
+                    saldo_entry.pack(pady=5)
+
+                    def salva_modifiche():
+                        numero_carta = numero_carta_entry.get()
+                        nome_carta = nome_carta_entry.get()
+                        data_scadenza = data_scadenza_entry.get()
+                        cvc = cvc_entry.get()
+                        saldo = saldo_entry.get()
+                        if numero_carta and nome_carta and data_scadenza and cvc and saldo:
+                            self.aggiorna_dati_carta(indice, numero_carta, nome_carta, data_scadenza, cvc, float(saldo))
+                            modifica_finestra.destroy()
+
+                    salva_btn = tk.Button(modifica_finestra, text="Salva", command=salva_modifiche)
+                    salva_btn.pack(pady=10)
