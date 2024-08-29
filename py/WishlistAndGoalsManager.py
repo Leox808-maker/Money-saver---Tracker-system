@@ -119,15 +119,9 @@ class WishlistAndGoalsManager(tk.Frame):
             except ValueError:
                 messagebox.showerror("Errore", "Il costo stimato deve essere un numero valido.")
 
-
-
-
     def add_wishlist_to_list(self, name, cost, priority):
         self.wishlist.append((name, cost, priority))
         self.update_wishlist_tree()
-
-
-
 
     def update_wishlist_item(self, item):
         name = self.popup_name_entry.get()
@@ -135,7 +129,6 @@ class WishlistAndGoalsManager(tk.Frame):
         priority = self.popup_priority_entry.get()
         self.wishlist_tree.item(item, values=(name, cost, priority))
         # popup.destroy()
-
 
 
 
@@ -209,3 +202,50 @@ class WishlistAndGoalsManager(tk.Frame):
     def add_goal_to_list(self, description, target):
         self.goals.append((description, target))
         self.update_goals_tree()
+
+        def update_goal_item(self, item):
+            description = self.popup_description_entry.get()
+            target = self.popup_target_entry.get()
+            self.goals_tree.item(item, values=(description, target))
+            #  popup.destroy()
+
+        def update_goals_tree(self):
+            for item in self.goals_tree.get_children():
+                self.goals_tree.delete(item)
+            for goal in self.goals:
+                self.goals_tree.insert("", tk.END, values=goal)
+
+    class ExpenseTrackerApp(tk.Tk):
+        def __init__(self):
+            super().__init__()
+            self.title("Gestione Spese")
+            self.geometry("1000x600")
+
+            self.tabs = ttk.Notebook(self)
+
+            self.main_menu = MainMenu(self.tabs, self)
+            self.settings_frame = SettingsMenu(self.tabs, self)
+            self.category_manager_frame = ExpenseCategoryManager(self.tabs, self)
+            self.expense_history_frame = ExpenseHistoryViewer(self.tabs, self)
+            self.wishlist_goals_frame = WishlistAndGoalsManager(self.tabs, self)
+
+            self.tabs.add(self.main_menu, text="Menu")
+            self.tabs.add(self.settings_frame, text="Impostazioni")
+            self.tabs.add(self.category_manager_frame, text="Categorie Spese")
+            self.tabs.add(self.expense_history_frame, text="Storico Spese")
+            self.tabs.add(self.wishlist_goals_frame, text="Wishlist e Obiettivi")
+
+            self.tabs.pack(expand=1, fill="both")
+
+        def set_light_theme(self):
+            pass
+
+        def set_dark_theme(self):
+            pass
+
+        def save_user_settings(self, settings):
+            pass
+
+    if __name__ == "__main__":
+        app = ExpenseTrackerApp()
+        app.mainloop()
