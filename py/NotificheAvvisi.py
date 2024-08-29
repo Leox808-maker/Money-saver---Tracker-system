@@ -107,3 +107,40 @@ class NotificheAvvisi:
                 avviso = {"importo": float(importo), "data": data}
                 self.avvisi_impostati.append(avviso)
                 self.avvisi_listbox.insert(tk.END, f"Avviso per importo: {importo} € entro {data}")
+
+    def salva_avvisi_su_file(self, file_path):
+        with open(file_path, "w") as file:
+            for avviso in self.avvisi_impostati:
+                file.write(f"{avviso['importo']},{avviso['data']}\n")
+
+    def avviso_periodico(self, intervallo):
+        importo_periodico = float(self.importo_entry.get())
+        data_corrente = datetime.date.today()
+        data_periodica = data_corrente + datetime.timedelta(days=intervallo)
+        avviso = {"importo": importo_periodico, "data": data_periodica.strftime("%Y-%m-%d")}
+        self.avvisi_impostati.append(avviso)
+        self.avvisi_listbox.insert(tk.END, f"Avviso periodico: {importo_periodico} € entro {data_periodica}")
+        self.importo_entry.delete(0, tk.END)
+        self.data_entry.delete(0, tk.END)
+
+    def avvisi_per_categoria(self, categoria):
+        spese_categoria = [spesa for spesa in self.spese_data if spesa["categoria"] == categoria]
+        importo_totale = sum(spesa["importo"] for spesa in spese_categoria)
+        avviso = {"importo": importo_totale, "data": datetime.date.today().strftime("%Y-%m-%d")}
+        self.avvisi_impostati.append(avviso)
+        self.avvisi_listbox.insert(tk.END, f"Avviso per categoria {categoria}: {importo_totale} €")
+
+    def visualizza_avvisi_categoria(self, categoria):
+        avvisi_categoria_finestra = tk.Toplevel(self.root)
+        avvisi_categoria_finestra.title(f"Avvisi per Categoria: {categoria}")
+
+        avvisi_listbox = tk.Listbox(avvisi_categoria_finestra)
+        avvisi_listbox.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        for avviso in self.avvisi_impostati:
+            spese_categoria = [spesa for spesa in self.spese_data if spesa["categoria"] == categoria]
+            importo_totale = sum(spesa["importo"] for spesa in spese_categoria)
+            avvisi_listbox.insert(tk.END, f"{categoria}: {importo_totale} € entro {avviso['data']}")
+
+        chiudi_btn = tk.Button(avvisi_categoria_finestra, text="Chiudi", command=avvisi_categoria_finestra.destroy)
+        chiudi_btn.pack(pady=10)
