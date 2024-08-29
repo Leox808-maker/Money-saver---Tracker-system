@@ -71,13 +71,10 @@ class ExpenseTrackerApp(tk.Tk):
         self.tabs.add(self.expense_history_frame, text="Storico Spese")
 
         self.tabs.pack(expand=1, fill="both")
-
     def set_light_theme(self):
         pass
-
     def set_dark_theme(self):
         pass
-
     def save_user_settings(self, settings):
         pass
 
