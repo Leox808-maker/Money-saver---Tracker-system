@@ -128,3 +128,39 @@ class ViewExpensesFrame(tk.Frame):
 
         for expense in self.app.expenses:
             self.expenses_tree.insert("", tk.END, values=(expense["description"], expense["amount"], expense["category"], expense["date"]))
+
+
+
+
+class StatisticsFrame(tk.Frame):
+    def __init__(self, parent, app):
+        super().__init__(parent)
+        self.app = app
+        self.create_widgets()
+
+    def create_widgets(self):
+        tk.Label(self, text="Statistiche Spese", font=("Helvetica", 14)).pack(pady=10)
+
+        self.stats_label = tk.Label(self, text="")
+        self.stats_label.pack(pady=20)
+
+        self.refresh_button = tk.Button(self, text="Aggiorna Statistiche", command=self.calculate_statistics)
+        self.refresh_button.pack()
+
+    def calculate_statistics(self):
+        total_spent = sum(expense["amount"] for expense in self.app.expenses)
+        num_expenses = len(self.app.expenses)
+
+        if num_expenses == 0:
+            average_spent = 0
+        else:
+            average_spent = total_spent / num_expenses
+
+        stats_text = f"Totale Spese: {total_spent:.2f} €\nNumero di spese: {num_expenses}\nSpesa media: {average_spent:.2f} €"
+        self.stats_label.config(text=stats_text)
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = ExpenseTrackerApp(root)
+    root.mainloop()
